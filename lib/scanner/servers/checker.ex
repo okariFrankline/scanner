@@ -10,13 +10,9 @@ defmodule Scanner.Servers.Checker do
 
   use GenServer, shutdown: 5000, restart: :transient
 
-  alias Crawly.ParsedItem
-
-  alias Scanner.Spiders.Ethereum
+  alias Scanner.Spiders.{Crawler, Ethereum}
 
   @recheck_every :timer.seconds(5)
-
-  @etherscan_url "https://etherscan.io/tx"
 
   @doc """
   Starts the Process
@@ -42,7 +38,7 @@ defmodule Scanner.Servers.Checker do
 
   @impl GenServer
   def handle_info(:recheck, %{tx_hash: tx_hash} = state) do
-    %Ethereum{confirmed_blocks: blocks} = scrap_transaction_page(tx_hash)
+    %Ethereum{confirmed_blocks: blocks} = Crawler.scrap_transaction_page(tx_hash)
 
     cond do
       blocks >= 2 ->
@@ -53,16 +49,6 @@ defmodule Scanner.Servers.Checker do
         {:noreply, state}
     end
   end
-
-  defp scrap_transaction_page(tx_hash) do
-    url = "#{@etherscan_url}/#{tx_hash}"
-
-    url
-    |> Crawly.fetch(with: Ethereum)
-    |> fetch_parsed_item()
-  end
-
-  defp fetch_parsed_item({_, %ParsedItem{items: [item]}, _, _}), do: item
 
   defp schedule_recheck do
     Process.send_after(self(), :recheck, @recheck_every)
