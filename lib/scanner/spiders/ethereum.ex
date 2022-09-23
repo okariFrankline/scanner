@@ -11,9 +11,17 @@ defmodule Scanner.Spiders.Ethereum do
 
   defstruct [:tx_hash, confirmed_blocks: 0]
 
-  @block_selector "div span.u-label.u-label--xs.u-label--badge-in.u-label--secondary.ml-1"
+  @typedoc """
+  Ethererum itme
+  """
+  @type t :: %__MODULE__{
+          tx_hash: String.t(),
+          confirmed_blocks: integer
+        }
 
   @doc_selector "div span#spanTxHash"
+
+  @block_selector "div span.u-label.u-label--xs.u-label--badge-in.u-label--secondary.ml-1"
 
   @impl Crawly.Spider
   def base_url, do: "https://etherscan.io/tx"
@@ -28,7 +36,6 @@ defmodule Scanner.Spiders.Ethereum do
   @impl Crawly.Spider
   def parse_item(%{body: body}) do
     %ParsedItem{items: [do_parse_item(body)], requests: []}
-    |> IO.inspect()
   end
 
   defp do_parse_item(body) do
