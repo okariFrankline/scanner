@@ -12,7 +12,7 @@ defmodule Scanner.Servers.Checker do
 
   alias Scanner.Spiders.{Crawler, Ethereum}
 
-  @recheck_every :timer.seconds(5)
+  @recheck_every :timer.seconds(10)
 
   @doc """
   Starts the Process
@@ -41,7 +41,7 @@ defmodule Scanner.Servers.Checker do
     %Ethereum{confirmed_blocks: blocks} = Crawler.scrap_transaction_page(tx_hash)
 
     cond do
-      blocks >= 2 ->
+      blocks >= required_blocks() ->
         {:stop, :normal, state}
 
       true ->
@@ -52,5 +52,11 @@ defmodule Scanner.Servers.Checker do
 
   defp schedule_recheck do
     Process.send_after(self(), :recheck, @recheck_every)
+  end
+
+  defp required_blocks do
+    :scanner
+    |> Application.get_env(:crawler)
+    |> Keyword.get(:blocks, 2)
   end
 end

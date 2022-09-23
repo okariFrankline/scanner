@@ -8,6 +8,8 @@ defmodule Scanner.Servers.CheckerSup do
 
   alias Scanner.Servers.Checker
 
+  require Logger
+
   @doc false
   @spec start_link(opts :: Keyword.t()) :: Supervisor.on_start()
   def start_link(_) do
@@ -21,6 +23,8 @@ defmodule Scanner.Servers.CheckerSup do
   @spec start_checker(tx_hash :: String.t()) :: DynamicSupervisor.on_start_child()
   def start_checker(tx_hash) do
     spec = checker_child_spec(tx_hash)
+
+    Logger.info("Starting checker process")
 
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
@@ -36,7 +40,7 @@ defmodule Scanner.Servers.CheckerSup do
       shutdown: 5000,
       restart: :transient,
       id: Checker.name(tx_hash),
-      start: {Checker, :start_link, [tx_hash: tx_hash]}
+      start: {Checker, :start_link, [[tx_hash: tx_hash]]}
     }
   end
 end

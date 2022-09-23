@@ -15,7 +15,7 @@ defmodule Scanner.Spiders.EctoStorage do
   payment to complete or leaves it as pending
   """
   def run(%Ethereum{confirmed_blocks: blocks} = item, state) do
-    if blocks >= 2 do
+    if blocks >= required_blocks() do
       mark_payment_as_complete(item, state)
     else
       {false, state}
@@ -34,5 +34,11 @@ defmodule Scanner.Spiders.EctoStorage do
       {:error, _} -> {false, state}
       {:ok, _} -> {item, state}
     end
+  end
+
+  defp required_blocks do
+    :scanner
+    |> Application.get_env(:crawler)
+    |> Keyword.get(:blocks, 2)
   end
 end

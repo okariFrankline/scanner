@@ -62,12 +62,18 @@ defmodule Scanner.Ethereum do
 
   defp maybe_trigger_recheck(%Ethereum{confirmed_blocks: blocks, tx_hash: tx_hash}) do
     cond do
-      blocks >= 2 ->
+      blocks >= required_blocks() ->
         {:ok, :complete}
 
       true ->
         CheckerSup.start_checker(tx_hash)
         {:ok, :pending}
     end
+  end
+
+  defp required_blocks do
+    :scanner
+    |> Application.get_env(:crawler)
+    |> Keyword.get(:blocks, 2)
   end
 end

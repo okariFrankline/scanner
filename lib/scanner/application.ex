@@ -17,7 +17,7 @@ defmodule Scanner.Application do
       # Start the Endpoint (http/https)
       ScannerWeb.Endpoint,
       # start checker supervisor
-      {Scanner.Servers.CheckerSup, []}
+      Scanner.Servers.CheckerSup
       # Start a worker by calling: Scanner.Worker.start_link(arg)
       # {Scanner.Worker, arg}
     ]

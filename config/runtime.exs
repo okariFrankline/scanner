@@ -63,6 +63,9 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  # crawler configurations
+  config :scanner, :crawler, blocks: 20
+
   # ## Configuring the mailer
   #
   # In production you need to configure the mailer to use a different adapter.
