@@ -55,9 +55,10 @@ defmodule Scanner.Ethereum do
   end
 
   defp confirm_remote_status(tx_hash, opts, crawler \\ required_crawler()) do
-    tx_hash
-    |> crawler.scrap_transaction_page(opts)
-    |> maybe_trigger_recheck()
+    case crawler.scrap_transaction_page(tx_hash, opts) do
+      :tx_not_found = reason -> {:error, reason}
+      %Ethereum{} = eth -> maybe_trigger_recheck(eth)
+    end
   end
 
   defp maybe_trigger_recheck(%Ethereum{confirmed_blocks: blocks, tx_hash: tx_hash}) do
