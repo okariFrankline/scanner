@@ -40,5 +40,14 @@ defmodule ScannerWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+
+  plug Corsica,
+    origins: "*",
+    max_age: 600,
+    allow_credentials: true,
+    allow_headers: :all,
+    allow_methods: :all,
+    log: [rejected: :error, invalid: :debug, accepted: :debug]
+
   plug ScannerWeb.Router
 end

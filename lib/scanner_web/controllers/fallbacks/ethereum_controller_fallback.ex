@@ -6,10 +6,10 @@ defmodule ScannerWeb.EthereumController.Fallback do
   alias ScannerWeb.ErrorView
 
   @doc false
-  def call(conn, {:error, reason}) do
+  def call(conn, {:error, :tx_not_found}) do
     conn
     |> put_status(400)
     |> put_view(ErrorView)
-    |> render("400.json", %{error: reason})
+    |> render("400.json", %{error: "transaction with given hash does not exist"})
   end
 end

@@ -45,6 +45,7 @@ defmodule Scanner.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:crawly, "~> 0.14.0"},
       {:floki, "~> 0.33.1"},
+      {:corsica, "~> 1.2.0"},
       {:ex_machina, "~> 2.7", only: :test}
     ]
   end
