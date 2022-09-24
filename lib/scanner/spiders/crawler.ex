@@ -15,8 +15,8 @@ defmodule Scanner.Spiders.Crawler do
   trasction and returns the payment
 
   """
-  @spec scrap_transaction_page(tx_hash :: String.t()) :: Ethereum.t()
-  def scrap_transaction_page(tx_hash) do
+  @spec scrap_transaction_page(tx_hash :: String.t(), opts :: Keyword.t()) :: Ethereum.t()
+  def scrap_transaction_page(tx_hash, _opts) do
     url = "#{@etherscan_url}/#{tx_hash}"
 
     url
