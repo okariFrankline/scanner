@@ -28,3 +28,9 @@ config :logger, level: :warn
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :scanner,
+  crawler: [
+    blocks: 2,
+    module: Scanner.Spiders.CrawlerMock
+  ]

@@ -10,7 +10,7 @@ defmodule Scanner.Servers.Checker do
 
   use GenServer, shutdown: 5000, restart: :transient
 
-  alias Scanner.Spiders.{Crawler, Ethereum}
+  alias Scanner.Spiders.Ethereum
 
   @recheck_every :timer.seconds(10)
 
@@ -31,14 +31,14 @@ defmodule Scanner.Servers.Checker do
   def name(name), do: String.to_atom(name)
 
   @impl GenServer
-  def init(opts) do
+  def init(tx_hash: tx_hash, crawler: crawler) do
     schedule_recheck()
-    {:ok, %{tx_hash: opts[:tx_hash]}}
+    {:ok, %{tx_hash: tx_hash, crawler: crawler}}
   end
 
   @impl GenServer
-  def handle_info(:recheck, %{tx_hash: tx_hash} = state) do
-    %Ethereum{confirmed_blocks: blocks} = Crawler.scrap_transaction_page(tx_hash)
+  def handle_info(:recheck, %{tx_hash: tx_hash, crawler: crawler} = state) do
+    %Ethereum{confirmed_blocks: blocks} = crawler.scrap_transaction_page(tx_hash)
 
     cond do
       blocks >= required_blocks() ->
