@@ -25,11 +25,11 @@ defmodule Scanner.Ethereum do
     {:ok, status}
 
   """
-  @spec transaction_status(tx_hash :: String.t()) :: {:ok, status}
-  def transaction_status(tx_hash) do
+  @spec transaction_status(tx_hash :: String.t(), opts :: Keyword.t()) :: {:ok, status}
+  def transaction_status(tx_hash, opts \\ [complete: false]) do
     with {:ok, payment} <- get_payment(tx_hash),
-         {:ok, response} <- check_status(payment),
-         do: response
+         {:ok, _res} = resp <- check_status(payment, opts),
+         do: resp
   end
 
   defp get_payment(tx_hash) do
@@ -47,16 +47,16 @@ defmodule Scanner.Ethereum do
     |> Repo.insert!()
   end
 
-  defp check_status(%Payment{status: status, tx_hash: tx_hash}) do
+  defp check_status(%Payment{status: status, tx_hash: tx_hash}, opts) do
     case status do
       :complete -> {:ok, status}
-      :pending -> {:ok, confirm_remote_status(tx_hash)}
+      :pending -> confirm_remote_status(tx_hash, opts)
     end
   end
 
-  defp confirm_remote_status(tx_hash) do
+  defp confirm_remote_status(tx_hash, opts, crawler \\ required_crawler()) do
     tx_hash
-    |> Crawler.scrap_transaction_page()
+    |> crawler.scrap_transaction_page(opts)
     |> maybe_trigger_recheck()
   end
 
@@ -75,5 +75,11 @@ defmodule Scanner.Ethereum do
     :scanner
     |> Application.get_env(:crawler)
     |> Keyword.get(:blocks, 2)
+  end
+
+  defp required_crawler do
+    :scanner
+    |> Application.get_env(:crawler)
+    |> Keyword.get(:module, Crawler)
   end
 end

@@ -9,6 +9,12 @@ defmodule ScannerWeb.Router do
     pipe_through :api
   end
 
+  scope "/api/v1/transactions", ScannerWeb do
+    pipe_through [:api]
+
+    get "/status", EthereumController, :transaction_status
+  end
+
   # Enables the Swoosh mailbox preview in development.
   #
   # Note that preview only shows emails that were sent by the same

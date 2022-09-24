@@ -61,4 +61,8 @@ config :phoenix, :stacktrace_depth, 20
 config :phoenix, :plug_init_mode, :runtime
 
 # crawler configurations
-config :scanner, :crawler, blocks: 20
+config :scanner,
+  crawler: [
+    blocks: 2,
+    module: Scanner.Spiders.Crawler
+  ]

@@ -8,6 +8,8 @@ defmodule Scanner.Servers.CheckerSup do
 
   alias Scanner.Servers.Checker
 
+  alias Scanner.Spiders.Crawler
+
   require Logger
 
   @doc false
@@ -29,6 +31,20 @@ defmodule Scanner.Servers.CheckerSup do
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 
+  @doc """
+  Stops a given checker process
+
+  Used mainly in testeing
+  """
+  @spec stop_checker(tx_hash :: String.t()) :: :ok
+  def stop_checker(tx_hash) do
+    if pid = child_pid(tx_hash) do
+      DynamicSupervisor.terminate_child(__MODULE__, pid)
+    end
+
+    :ok
+  end
+
   @impl DynamicSupervisor
   def init(_) do
     DynamicSupervisor.init(strategy: :one_for_one)
@@ -40,7 +56,19 @@ defmodule Scanner.Servers.CheckerSup do
       shutdown: 5000,
       restart: :transient,
       id: Checker.name(tx_hash),
-      start: {Checker, :start_link, [[tx_hash: tx_hash]]}
+      start: {Checker, :start_link, [[tx_hash: tx_hash, crawler: required_crawler()]]}
     }
+  end
+
+  defp required_crawler do
+    :scanner
+    |> Application.get_env(:crawler)
+    |> Keyword.get(:module, Crawler)
+  end
+
+  defp child_pid(tx_hash) do
+    tx_hash
+    |> Checker.name()
+    |> Process.whereis()
   end
 end

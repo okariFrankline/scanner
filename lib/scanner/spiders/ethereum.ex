@@ -12,7 +12,7 @@ defmodule Scanner.Spiders.Ethereum do
   defstruct [:tx_hash, confirmed_blocks: 0]
 
   @typedoc """
-  Ethererum itme
+  Ethererum item
   """
   @type t :: %__MODULE__{
           tx_hash: String.t(),
@@ -27,10 +27,8 @@ defmodule Scanner.Spiders.Ethereum do
   def base_url, do: "https://etherscan.io/tx"
 
   @impl Crawly.Spider
-  def init(opts) do
-    tx_hash = Keyword.fetch!(opts, :crawler_id)
-
-    [start_urls: ["https://etherscan.io/tx/#{tx_hash}"]]
+  def init do
+    [start_urls: []]
   end
 
   @impl Crawly.Spider
