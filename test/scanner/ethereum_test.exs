@@ -1,13 +1,13 @@
 defmodule Scanner.EthereumTest do
   @moduledoc false
 
-  use Scanner.DataCase, async: false
+  use Scanner.DataCase
 
   alias Scanner.Ethereum
 
   alias Scanner.Ethereum.Payment
 
-  alias Scanner.Spiders.Crawler
+  alias Scanner.Spiders.{Crawler, CrawlerMock}
 
   alias Scanner.Servers.{Checker, CheckerSup}
 
@@ -63,6 +63,8 @@ defmodule Scanner.EthereumTest do
   describe "transaction_status/1 integration test" do
     setup do
       Application.put_env(:scanner, :crawler, module: Crawler)
+
+      on_exit(fn -> Application.put_env(:scanner, :crawler, module: CrawlerMock) end)
 
       :ok
     end

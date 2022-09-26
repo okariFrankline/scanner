@@ -1,11 +1,11 @@
 defmodule ScannerWeb.EthereumControllerTest do
   @moduledoc false
 
-  use ScannerWeb.ConnCase, async: true
+  use ScannerWeb.ConnCase
 
   alias Scanner.Servers.CheckerSup
 
-  alias Scanner.Spiders.Crawler
+  alias Scanner.Spiders.{Crawler, CrawlerMock}
 
   @moduletag :ethereum_controller
 
@@ -29,6 +29,8 @@ defmodule ScannerWeb.EthereumControllerTest do
   describe "GET /api/transaction/status integration test" do
     setup do
       Application.put_env(:scanner, :crawler, module: Crawler)
+
+      on_exit(fn -> Application.put_env(:scanner, :crawler, module: CrawlerMock) end)
 
       :ok
     end
