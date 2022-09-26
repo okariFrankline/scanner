@@ -74,9 +74,11 @@ If you wish to test the application without the react application, do the follow
 
 Whenever you call `Scanner.Ethereum.transaction_status/1` with a transaction hash, it first tries to get the tx from the db.
 
-If it exists, it checks the current payment status performs one of two actions based on the value of the status:
+If it exists, it checks the current payment status and then performs one of two actions based on the value of the status
 
-1. If the status is `:complete`, it returns `{:ok, :complete}` and does not confirm it from the etherscan.io API
+If the transaction does not exist in the db, it creates it with a status of `:pending` before proceeding to below:
+
+1. If the status is `:complete`, it returns `{:ok, :complete}` and does not confirm it from the etherscan.io API because a payment can only be marked as `:complete` once it has reached the required block confirmations
 
 2. If the status is `:pending`, it does the following:
 
