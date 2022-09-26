@@ -47,18 +47,22 @@ defmodule Scanner.Spiders.Ethereum do
   end
 
   defp get_tx_hash(document) do
-    document
-    |> Floki.find(@doc_selector)
-    |> Floki.text()
-    |> String.trim()
+    with value when value != [] <- get_data(document, @doc_selector) do
+      value
+      |> Floki.text()
+      |> String.trim()
+    end
   end
 
   defp get_confirmed_blocks(document) do
-    document
-    |> Floki.find(@block_selector)
-    |> Floki.text()
-    |> extract_blocks()
+    with value when value != [] <- get_data(document, @block_selector) do
+      value
+      |> Floki.text()
+      |> extract_blocks()
+    end
   end
+
+  defp get_data(doc, selector), do: Floki.find(doc, selector)
 
   defp extract_blocks(text) do
     text

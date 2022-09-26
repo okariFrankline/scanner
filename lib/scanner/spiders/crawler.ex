@@ -19,14 +19,9 @@ defmodule Scanner.Spiders.Crawler do
   def scrap_transaction_page(tx_hash, _opts \\ []) do
     url = "#{@etherscan_url}/#{tx_hash}"
 
-    try do
-      url
-      |> Crawly.fetch(with: Ethereum)
-      |> fetch_parsed_item()
-    rescue
-      _ ->
-        :tx_not_found
-    end
+    url
+    |> Crawly.fetch(with: Ethereum)
+    |> fetch_parsed_item()
   end
 
   defp fetch_parsed_item({_, %ParsedItem{items: [item]}, _, _}), do: item

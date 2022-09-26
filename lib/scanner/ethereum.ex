@@ -1,6 +1,8 @@
 defmodule Scanner.Ethereum do
   @moduledoc false
 
+  import Ecto.Query, only: [where: 3]
+
   alias Scanner.Ethereum.Payment
 
   alias Scanner.Servers.CheckerSup
@@ -18,7 +20,11 @@ defmodule Scanner.Ethereum do
   within the db.
 
   If the transaction is pending, it schedules a continous check that runs
-  until it is confirmed
+  until it is confirmed.
+
+  If the transaction hash given is for a tx that does not exist on the block
+  chain, the transaction is deleted from db as well, ensuring wrong data is
+  not persisted.
 
   ## Examples
     iex> transaction_status(tx_hash)
@@ -55,10 +61,24 @@ defmodule Scanner.Ethereum do
   end
 
   defp confirm_remote_status(tx_hash, opts, crawler \\ required_crawler()) do
-    case crawler.scrap_transaction_page(tx_hash, opts) do
-      :tx_not_found = reason -> {:error, reason}
-      %Ethereum{} = eth -> maybe_trigger_recheck(eth)
+    tx_hash
+    |> crawler.scrap_transaction_page(opts)
+    |> process_scrap_results(tx_hash)
+  end
+
+  defp process_scrap_results(%Ethereum{tx_hash: hash} = ethereum, tx_hash) do
+    case hash do
+      [] -> delete_transaction(tx_hash)
+      _ -> maybe_trigger_recheck(ethereum)
     end
+  end
+
+  defp delete_transaction(tx_hash) do
+    Payment
+    |> where([p], p.tx_hash == ^tx_hash)
+    |> Repo.delete_all([])
+
+    {:error, :tx_not_found}
   end
 
   defp maybe_trigger_recheck(%Ethereum{confirmed_blocks: blocks, tx_hash: tx_hash}) do

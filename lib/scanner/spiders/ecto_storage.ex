@@ -13,7 +13,15 @@ defmodule Scanner.Spiders.EctoStorage do
   @doc """
   Based on the number of confirmed blocks, it either updates the
   payment to complete or leaves it as pending
+
+  If either the tx_hash or the confirmed blocks is an empty list,
+  it means crawly the tx page with the provided tx_hash resulted in
+  the transaction not exisiting, hence, nothing happens
   """
+  @spec run(eth :: Ethereum.t(), state) :: {Ethereum.t(), state} | {false, state}
+        when state: term
+  def run(%Ethereum{confirmed_blocks: [], tx_hash: []}, state), do: {false, state}
+
   def run(%Ethereum{confirmed_blocks: blocks} = item, state) do
     if blocks >= required_blocks() do
       mark_payment_as_complete(item, state)

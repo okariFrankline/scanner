@@ -13,4 +13,11 @@ defmodule ScannerWeb.ErrorView do
   def template_not_found(template, _assigns) do
     %{errors: %{detail: Phoenix.Controller.status_message_from_template(template)}}
   end
+
+  @doc false
+  def render("400.json", %{error: reason}) do
+    %{
+      error: reason
+    }
+  end
 end
